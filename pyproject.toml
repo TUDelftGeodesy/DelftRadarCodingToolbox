@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "delftradarcodingtoolbox"
+version = "0.1.0"
+description = "Caroline Radar-Coding Toolbox"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+	"geopandas",
+	"matplotlib",
+	"numpy",
+	"openpyxl",
+	"requests",
+	"scipy",
+	"shapely",
+	"tqdm",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gecoris*", "functions*"]
+namespaces = true
