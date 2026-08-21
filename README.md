@@ -69,27 +69,25 @@ With reference to the diagram of the CRCT, the Radar Coordinates corresponds to 
 
 ## Installation
 
-From the terminal:
+We recommend to create a virtual environment and install the required packages in it. To manage the virtual environment, we recommend to use [`uv`](https://docs.astral.sh/uv/)
 
+For now you can only install Caorline RadarCodingToolbox from source.
 
-1. Make sure to have the required libraries installed python environent by running the following line in the environment you'd like to use:
+First, clone the repository:
 ```
-pip install openpyxl matplotlib geopandas shapely
-
-```
-
-2. Download  `main.py` and `.parms` file from: https://github.com/Pbaz98/radarcoding-tool.git to the destination directory:
-
-```
-git clone https://github.com/Pbaz98/radarcoding-tool.git destination-directory-name
+git clone git@github.com:TUDelftGeodesy/DelftRadarCodingToolbox.git
 ```
 
+Then, go to the clone directory and install the package:
+```
+cd DelftRadarCodingToolbox
+uv pip install .
+```
 
-
-
-
-
-
+This will install the package and all its dependencies in the virtual environment `.venv` in `DelftRadarCodingToolbox`. You can activate the virtual environment with:
+```
+source .venv/bin/activate
+```
 
 
 **Setting parameters**
