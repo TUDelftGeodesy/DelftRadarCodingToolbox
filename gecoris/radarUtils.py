@@ -30,7 +30,6 @@ import math
 import scipy.linalg
 from gecoris import geoUtils, atmoUtils, s1Utils
 speedOfLight = 299792458.0
-from functions import ioUtilsPaolo as io
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
@@ -76,11 +75,7 @@ def xyz2t(xyzAll,metadata):
         satVec = np.empty((xyzAll.shape[0],3))
     for xyz in xyzAll:
         i = 1
-        #DEBUG
-        # ITER = []
-        # DIST = []
-        # DOT = []
-        #
+
         while i < maxiter:
             dx = xyz[0] - np.polynomial.chebyshev.chebval(tAz-t0,cX)
             dy = xyz[1] - np.polynomial.chebyshev.chebval(tAz-t0,cY)
@@ -99,70 +94,13 @@ def xyz2t(xyzAll,metadata):
                 break
             elif i >= maxiter:
                 print("Warning, range-Doppler solution didn't converge!")
-            # DEBUG
-            # satVecP = np.array([np.polynomial.chebyshev.chebval(tAz-t0,cX),np.polynomial.chebyshev.chebval(tAz-t0,cY),np.polynomial.chebyshev.chebval(tAz-t0,cZ)])
-            # dist = np.sqrt(np.sum(np.power(xyz - satVecP,2)))*1e-3
-            #DEBUG
-            # vxSat = np.polynomial.chebyshev.chebval(tAz-t0,cVX)
-            # vySat = np.polynomial.chebyshev.chebval(tAz-t0,cVY)
-            # vzSat = np.polynomial.chebyshev.chebval(tAz-t0,cVZ)
-            # satVel = np.array([vxSat,vySat,vzSat])
-            # dott = np.dot((satVecP-xyz)/np.linalg.norm((satVecP-xyz)),satVel/np.linalg.norm(satVel))
-            # #
-            # ITER.append(i)
-            # DIST.append(dist)
-            # DOT.append(np.abs(dott))
-            #
+
             i += 1
         # compute corresponding range time and satellite position:
         xSat = np.polynomial.chebyshev.chebval(tAz-t0,cX)
         ySat = np.polynomial.chebyshev.chebval(tAz-t0,cY)
         zSat = np.polynomial.chebyshev.chebval(tAz-t0,cZ)
         satVec[idx] = np.array([xSat,ySat,zSat])
-        # DEBUG
-        # vxSat = np.polynomial.chebyshev.chebval(tAz-t0,cVX)
-        # vySat = np.polynomial.chebyshev.chebval(tAz-t0,cVY)
-        # vzSat = np.polynomial.chebyshev.chebval(tAz-t0,cVZ)
-        # satVel = np.array([vxSat,vySat,vzSat])
-        
-#         DOTglob = []
-#         DT = .01
-#         tTest = np.linspace(tAz-DT,tAz+DT,2000)
-#         for tt in tTest:
-#             vxSat = np.polynomial.chebyshev.chebval(tt-t0,cVX)
-#             vySat = np.polynomial.chebyshev.chebval(tt-t0,cVY)
-#             vzSat = np.polynomial.chebyshev.chebval(tt-t0,cVZ)
-#             satVel = np.array([vxSat,vySat,vzSat])
-#             satVecP = np.array([np.polynomial.chebyshev.chebval(tt-t0,cX),np.polynomial.chebyshev.chebval(tt-t0,cY),np.polynomial.chebyshev.chebval(tt-t0,cZ)])
-#             dott = np.dot((satVecP-xyz)/np.linalg.norm((satVecP-xyz)),satVel/np.linalg.norm(satVel))
-#             DOTglob.append(np.abs(dott))
-#         #  
-
-        
-#         print('START DEBUG (@radarUtils.py line 101)\n----------------------------------------------------------------')
-#         print('xyz=' + str(xyz*1e-3) + ' [km]')
-#         print('satVec=' + str(satVec[idx]*1e-3) + ' [km]')
-#         print('tAz= ' + str(tAz) + ' [seconds of day]')
-#         dt = np.abs(dt)*1e6
-#         print('dt= ' + str(dt) + ' [seconds ]')
-#         print('LOS distance @tAz+00= ' + str(np.sqrt(np.sum(np.power(xyz - satVec[idx],2)))*1e-3)+' [km]')
-#         satVecP = np.array([np.polynomial.chebyshev.chebval(tAz+dt-t0,cX),np.polynomial.chebyshev.chebval(tAz+dt-t0,cY),np.polynomial.chebyshev.chebval(tAz+dt-t0,cZ)])
-#         print('LOS distance @tAz+dt= ' + str(np.sqrt(np.sum(np.power(xyz - satVecP,2)))*1e-3)+' [km]')
-#         satVecM = np.array([np.polynomial.chebyshev.chebval(tAz-dt-t0,cX),np.polynomial.chebyshev.chebval(tAz-dt-t0,cY),np.polynomial.chebyshev.chebval(tAz-dt-t0,cZ)])
-#         print('LOS distance @tAz-dt= ' + str(np.sqrt(np.sum(np.power(xyz - satVecM,2)))*1e-3)+' [km]')
-#         print('DIST[-1] - DIST[0] = ' + str((DIST[-1] - DIST[0])) + ' [km]')
-#         print('tAz-tAz_initial = '+str(tAz-tAz_initial))
-#         print('Range doppler solution converged'+ str( (tAz-tAz_initial)*metadata["PRF"]) + ' azimuth lines distant from the initial guess')
-#         print('Dot product between geom range and sat velocity (satVec-xyz)*satVel = ' + str(np.dot((satVec[idx]-xyz),satVel)))
-#         fig, dbgP = plt.subplots(1,1)
-#         dbgP.semilogy(ITER,DIST)
-#         fig, dbgB = plt.subplots(1,1)
-#         dbgB.plot(ITER,DOT)
-#         fig, dbgC = plt.subplots(1,1)
-#         dbgC.plot(tTest,DOTglob)
-#         dbgC.vlines(tAz,-0.0001,0.0001,color='g')
-#         # dbgC.vlines(tAz_initial,-0.0001,0.0001,color='r')
-#         print('-------------------------------------------------------------------------------------------------------')
 
         
         tR[idx] = np.sqrt(np.sum(np.power(xyz - satVec[idx],2)))/speedOfLight
@@ -387,7 +325,7 @@ def mm2ph(mm,wavelength = 0.05546576):
     return ph
 
 
-def oversample(slc, up_factor,metadata):
+def oversample(slc, up_factor,metadata,azimuth=None,range=None):
     """Return slc image oversampled by up_factor
     
     FFT-based oversampling of SLC data by zero-padding.
@@ -399,13 +337,18 @@ def oversample(slc, up_factor,metadata):
     rangeSpacing = metadata["rangeSpacing"]
     azimuthSpacing = metadata["azimuthSpacing"]
 
-    
-    # coordinates of the crop's origin
-    firstR = slc.range.data[0]
-    firstAz = slc.azimuth.data[0]
-    
-    
-    slc = np.array(slc[:,:])
+    # AML
+    # Support the original xarray input as well as NumPy crops with explicit axes.
+    if hasattr(slc, "values"):
+        firstR = slc.range.data[0]
+        firstAz = slc.azimuth.data[0]
+        slc = slc.values
+    else:
+        if azimuth is None or range is None:
+            raise ValueError("NumPy SLC input requires explicit azimuth and range axes")
+        firstAz = azimuth[0]
+        firstR = range[0]
+    # AML END
     [rows, cols] = slc.shape
 
 
@@ -421,15 +364,17 @@ def oversample(slc, up_factor,metadata):
     
     # define the axes: to the first pixel and line is added the grid of the oversampled image
     # The range and Az Spacing are considered to express the image in meters
-    xaxis = firstR*rangeSpacing + np.linspace(0,(cols-1)*rangeSpacing,up_factor*cols)
-    yaxis = firstAz*azimuthSpacing + np.linspace(0,(rows-1)*azimuthSpacing,up_factor*rows)
+    # AML
+    xaxis = firstR*rangeSpacing + np.arange(cols*up_factor)*rangeSpacing/up_factor
+    yaxis = firstAz*azimuthSpacing + np.arange(rows*up_factor)*azimuthSpacing/up_factor
+    # AML END
 
     axes = (xaxis,yaxis)
     
     
     slc = np.fft.ifft2(slc) * up_factor * up_factor
     
-    # io.plotSLC(slc,acqDate,axes=axes)
+    
     
     return slc, axes
 
@@ -505,10 +450,6 @@ def radarcode(plh,metadata,**kwargs):
     # from ellipsoidal to ECEF:
     xyz = geoUtils.plh2xyz(plh)
     
-    # DEBUG
-    #print('WARNING: xyz position in ETRF2000 epoch 2010.5 has been hardcoded in radarUtils.py line 508\n(see ToEditInGecoris for more informations)')
-    #xyz = np.array([3908910.3663, 330932.7742, 5012262.5786])
-    #
     
     # transform CRS:
     acqDate = geoUtils.decimalYear(metadata['acqDate'])
@@ -556,22 +497,13 @@ def radarcode(plh,metadata,**kwargs):
     tAzimuth = tAzimuth - bistaticAz # - because zeroDoppler -> IPF
     # S1 Doppler shift
     doppler = s1Utils.dopplerRgCorrection(tRange,tAzimuth,metadata)
-    tRga = tRange # for DEBUG it's tRange without doppler correction
+
     tRange -= doppler # - because from corr -> IPF  
     # S1 FM mismash
     FM = s1Utils.FMmismatchCorrection(xyz,tRange,tAzimuth,metadata)
     tAzimuth += FM # + because from GEO -> IPF 
-    # # DEBUG
-    # print('------DEBUG start in radarUtils.py line 553 -----------')
-    # print('geometrical range= ' + str(1e-3 * tRg*speedOfLight) +' [km]')
-    # print('atmoDelay= ' + str(1e-3 * slantDelay*speedOfLight) +' [km]')
-    # print('tDoppler= ' + str(1e-3 * doppler*speedOfLight) +' [km]\n')
-    # print('bistaticAz= ' + str(-bistaticAz*speedOfLight) +' [m]')
-    # print('FM= ' + str(FM*speedOfLight) +' [m]')  
-    # print('Az - corrections on = ' + str(tAzimuth*speedOfLight) +' [m]') 
-    # print('-------------------------------------------------------')
+
     # convert to pixels:
-    
     (Azimuth,Range) = time2radar(tAzimuth,tRange,metadata)
 
 
@@ -638,22 +570,7 @@ def estimatePeak(beta0,boundingBox,metadata,ovsFactor,method='max'):
         maxAz = minAzloc + idx[0]+3
         minR = minRloc + idx[1]-3
         maxR = minRloc + idx[1]+3
-        # Print bot (1)beta0 and (2)beta0Crop DEBUG
-        # (1) 
-        # nAz = boundingBox[0][1] - boundingBox[0][0]
-        # nR = boundingBox[1][1] - boundingBox[1][0]
-        # yaxis = np.linspace(boundingBox[0][0],boundingBox[0][1],nAz*ovsFactor)
-        # xaxis = np.linspace(boundingBox[1][0],boundingBox[1][1],nR*ovsFactor)
-        # axes = (xaxis,yaxis)
-        # io.plotSLC(beta0,'beta0'+str(metadata["acqDate"]),axes = axes,units='pixel')
-        # #(2)
-        # nAz = maxAzloc-minAzloc
-        # nR = maxRloc-minRloc
-        # print([minAzloc,maxAzloc,minRloc,maxRloc])
-        # yaxis = boundingBox[0][0] + np.linspace(minAzloc/ovsFactor,maxAzloc/ovsFactor,nAz)
-        # xaxis = boundingBox[1][0] + np.linspace(minRloc/ovsFactor,maxRloc/ovsFactor,nR)
-        # axes = (xaxis,yaxis)
-        # io.plotSLC(beta0crop,'beta0crop'+str(metadata["acqDate"]),axes = axes,units='pixel',bars=[(minAz-13)/32+boundingBox[0][0],(maxAz+13)/32+boundingBox[0][0],minR-13,maxR+13])
+        
         # fit data:
         beta0crop = beta0[minAz:maxAz+1,minR:maxR+1]
         # estimation grid:

@@ -18,7 +18,16 @@ print('-----------------------------------------------------------------------')
 import sys
 import os
 import glob
-from gecoris import ioUtils, plotUtils, atmoUtils
+# AML
+import numpy as np
+from tqdm import tqdm
+from gecoris import ioUtils, plotUtils, atmoUtils, dorisUtils
+
+stackType = np.dtype({'names':('acqDate','acqTime','status','RCS','SLC','azimuth','range',
+                               'dAz','dR','dist','IFG'),
+                      'formats':('U10','U10','?','f8','c16','f8','f8',
+                                 'f8','f8','f8','c16')})
+# AML END
 
 
 
@@ -31,7 +40,14 @@ def main(parms):
     ovsFactor = parms['ovsFactor']
     atmoFlag = parms['atmoFlag']
     plotFlag = parms['plotFlag']
+    # AML
+    cropFlag = parms.get('cropFlag', 0)
+    # AML END
     #
+    # AML
+    if not os.path.exists(outDir):
+        os.makedirs(outDir)
+    # AML END
     print('Initializing reflectors...')
     if stationLog.lower().endswith('.json'):
         stations = ioUtils.load_station_log(stationLog)
@@ -59,8 +75,10 @@ def main(parms):
         else:
             print('Unknown stacks log file format. Use .json or .csv.')
         # load data:
-        for stack in stacks: 
-            stack.readData(stations)
+        for stack in stacks:
+            # AML
+            stack.readData(stations, crop=cropFlag)
+            # AML END
             ioUtils.toJSON(stack, parms['outDir']) # save to JSON
             if atmoFlag:
                 print('Preparing atmo. models for stack '+stack.id)
@@ -83,15 +101,62 @@ def main(parms):
             if inJSON:
                 print('Station '+stations[i].id+ ' already analyzed, updating.')
                 stations[i] = ioUtils.fromJSON(inJSON[0])
-                for stack in stacks:
+
+            for stack in stacks:
+                # AML
+                if stack.type == 'coreg':
+                    slcIdx = -1
+                    for acqDate in tqdm(['00000000']+stack.acqDates+['99999999']):
+                        if acqDate != '00000000' and acqDate != '99999999':
+                            dateIdx = stack.acqDates.index(acqDate)
+                            file = stack.files[dateIdx]
+                            if cropFlag:
+                                SLC = dorisUtils.readSLC(file, stack.masterMetadata, 0, method='coregCrop')
+                            else:
+                                SLC = dorisUtils.readSLC(file, stack.masterMetadata, 0, method='coregSingle')
+
+                        if acqDate == '00000000':
+                            if not inJSON:
+                                stations[i].data = np.zeros(len(stack.acqDates), dtype=stackType)
+                            continue
+
+                        if acqDate == '99999999':
+                            if not inJSON:
+                                ts = {'id': stack.id, 'data': stations[i].data,
+                                      'metadata': stack.masterMetadata, 'stack': stack,
+                                      'type': 'coreg', 'zas': zas}
+                                stations[i].stacks.append(ts)
+                            continue
+
+                        if atmoFlag:
+                            stackKwargs = dict(
+                                ovsFactor=ovsFactor, posFlag=posFlag, plotFlag=plotFlag,
+                                outDir=outDir, atmoDir=atmoDir, SLC=SLC,
+                                acqDate=acqDate, slcIdx=slcIdx,
+                            )
+                        else:
+                            stackKwargs = dict(
+                                ovsFactor=ovsFactor, posFlag=posFlag, plotFlag=plotFlag,
+                                outDir=outDir, SLC=SLC, acqDate=acqDate, slcIdx=slcIdx,
+                            )
+
+                        if inJSON:
+                            stations[i].updateStack(stack, **stackKwargs)
+                        else:
+                            zas = stations[i].addStack(stack, **stackKwargs)
+
+                        slcIdx += 1
+                    continue
+                # AML END
+
+                if inJSON:
                     if atmoFlag:
                         stations[i].updateStack(stack, ovsFactor=ovsFactor, 
                                                 posFlag=posFlag, atmoDir=atmoDir)
                     else:
                         stations[i].updateStack(stack, ovsFactor=ovsFactor,
                                                 posFlag=posFlag)
-            else:
-                for stack in stacks:
+                else:
                     if atmoFlag:
                         stations[i].addStack(stack, ovsFactor=ovsFactor, 
                                                 posFlag=posFlag, plotFlag=plotFlag,

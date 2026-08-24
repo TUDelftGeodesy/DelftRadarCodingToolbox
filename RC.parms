@@ -1,0 +1,13 @@
+{
+"project" : 'groningen_IGRS',
+"stationLog" : '/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/results/nl_groningen_s1_dsc_t037_short_ovs16/reflectors.json',
+"stackLog" : '/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/stacks_RC.json',
+"outDir" : '/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/results/nl_groningen_s1_dsc_t037_short_ovs16/',
+"precisePosFlag" : 1,           # 0 = approx. / 1 = precise positioning
+"plotFlag" : 1,                 # 0 = no plots / 1 = sparse plots / 2 = detailed plots
+"fullStack" : 1,                # 0 = nSLC reduced to 40 images / 1 = full stack analyzed
+"cropFlag" : 1,                 # DORIS-related configuration: 1 = cropped stack
+# AML
+"ovsFactor" : 16                 # FFT oversampling factor for subpixel positioning
+# AML END
+}

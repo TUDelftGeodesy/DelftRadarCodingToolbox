@@ -18,6 +18,29 @@ def printS(message):
     print(message, end='', flush=True)
     return
 
+# AML
+_transformers = {}
+
+
+def transform_coordinates(easting, northing, elevation, source_crs, target_crs):
+    key = (int(source_crs), int(target_crs))
+
+    if key not in _transformers:
+        _transformers[key] = Transformer.from_crs(
+            f"EPSG:{key[0]}",
+            f"EPSG:{key[1]}",
+            always_xy=True,
+        )
+
+    lon, lat, elev = _transformers[key].transform(
+        float(easting),
+        float(northing),
+        float(elevation),
+    )
+
+    return lat, lon, elev
+# AML end
+
 # ---------------------------------------------------------------------------------------------------------------------------------
 print('Loading libraries...')
 
@@ -30,7 +53,9 @@ from pathlib import Path
 import numpy as np
 from datetime import datetime
 import openpyxl
-import requests
+# AML
+from pyproj import Transformer
+# AML end
 import matplotlib.pyplot as plt
 from geopandas import read_file, GeoDataFrame
 from shapely.geometry import Point, Polygon
@@ -132,6 +157,16 @@ if not(os.path.exists(outDir) and os.path.isdir(outDir)):
 if not os.path.exists(aoiPath):
     raise Exception('The provided shapefile path doesn\'t exists')
 shpPath = [p for p in aoiPath.rglob('*interest.shp')]
+#AML
+if not shpPath:
+    shpPath = [p for p in aoiPath.rglob('*shape.shp')]
+
+if not shpPath:
+    raise FileNotFoundError(
+        f"No AOI shapefile matching '*interest.shp' or '*shape.shp' "
+        f"found under {aoiPath}"
+    )
+#AML END
 shpData = read_file(shpPath[0])  
 geometry = shpData.geometry
 AoC = geometry[0]
@@ -202,29 +237,23 @@ while (content is not None):
         lon = float(Easting)
         elev = float(Elevation)
     else:
-        # Transform CRS via API
-        api_url = "http://epsg.io/trans"
-        trCount = trCount+1
-        params = {
-            'x': float(Easting),
-            'y': float(Northing),
-            'z': float(Elevation),
-            's_srs': int(epsgEasting),  # Source CRS (WGS 84)
-            't_srs': targetCRS   # Target CRS (ETRS89 / Poland CS92)
-        }
-        
-        response = requests.get(api_url, params=params)
+        # AML
+        if int(epsgEasting) != int(epsgNorthing):
+            raise ValueError(
+                f"Target {targetID} has different horizontal CRS codes: "
+                f"{epsgEasting=} and {epsgNorthing=}"
+            )
 
-        if response.status_code == 200:
-            # Parse the JSON response
-            coordinates = response.json()
-    
-            # Now you can work with the data as needed
-            lat = float(coordinates["y"])
-            lon = float(coordinates["x"])
-            elev = float(coordinates["z"])
-        else:
-            print("EPSG API request failed with status code:", response.status_code)
+        # Transform CRS locally with pyproj
+        trCount = trCount+1
+        lat, lon, elev = transform_coordinates(
+            Easting,
+            Northing,
+            Elevation,
+            epsgEasting,
+            targetCRS,
+        )
+        # AML end
 
     # Save point object
     targetP = Point(lon,lat,elev)

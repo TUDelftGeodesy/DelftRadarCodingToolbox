@@ -12,7 +12,6 @@ import os
 import glob
 import numpy as np
 from gecoris import ioUtils, plotUtils, atmoUtils, dorisUtils
-from functions import s1UtilsPaolo as s1p
 import time
 from tqdm import tqdm
 
@@ -34,6 +33,12 @@ def main(parms):
     plotFlag = parms['plotFlag']
     fullStack = parms['fullStack']
     cropFlag = parms['cropFlag']
+    # AML
+    ovsFactor = int(parms.get('ovsFactor', 1))
+    if ovsFactor < 1:
+        raise ValueError('ovsFactor must be >= 1')
+    print(f'Oversampling factor: {ovsFactor}')
+    # AML END
     #
     
     # --- Reflectors Are Loaded
@@ -57,8 +62,7 @@ def main(parms):
     # load data:
     SLCstacks = []
     for stack in stacks: 
-        stack.readData(stations,fullStack=fullStack,crop=cropFlag) # decide if you want to iterate over two or if you want to import metadata specifying bursts. For the moment we select only the first reflector of the list
-        ioUtils.toJSON(stack, parms['outDir']) # save to JSON
+        stack.readData(stations,fullStack=fullStack,crop=cropFlag) 
     dorisUtils.footPrint(stacks,stations,outDir)
 
 
@@ -85,40 +89,40 @@ def main(parms):
                 file = stack.files[dateIdx]
                 # print(f'Reading SLC for date {acqDate}')
                 if cropFlag:
-                    SLC = s1p.readSLC(file,stack.masterMetadata,0,method='coregCrop',
-                                              deramp = True)
+                    SLC = dorisUtils.readSLC(file,stack.masterMetadata,0,method='coregCrop')
                 else:    
-                    SLC = s1p.readSLC(file,stack.masterMetadata,0,method='coregSingle',
-                                              deramp = True)
+                    SLC = dorisUtils.readSLC(file,stack.masterMetadata,0,method='coregSingle')
                 
             for i in range(len(stations)):
+
+                # check if analysis already performed:
+                inJSON = [q for q in logs 
+                          if stations[i].id+'.json' in q.split(os.sep)[-1]]
                 
-                # perform only one tie at the beginning
+                # perform only one time at the beginning
                 if acqDate == '00000000':
                     stations[i].data = np.zeros(len(stack.acqDates), dtype=stackType)
                     continue
                 
                 # perform only one time at the end
-                if acqDate == '99999999':
+                if acqDate == '99999999' and not inJSON:
                     ts = {'id': stack.id, 'data': stations[i].data, 'metadata': stack.masterMetadata,
                           'stack': stack,'type':'coreg','zas':zas}
                     stations[i].stacks.append(ts)
                     
                     continue
                     
-                    
-                # check if analysis already performed:
-                inJSON = [q for q in logs 
-                          if stations[i].id+'.json' in q.split(os.sep)[-1]]
+                # if analysis already performed
                 if inJSON:
                     print('Station '+stations[i].id+ ' already analyzed, updating.')
                     stations[i] = ioUtils.fromJSON(inJSON[0])
-                    stations[i].updateStack(stack, ovsFactor=1,
-                                            posFlag=posFlag)
+                    stations[i].updateStack(stack, ovsFactor=ovsFactor,
+                                            posFlag=posFlag,plotFlag=plotFlag,
+                                             outDir=outDir,SLC=SLC,acqDate=acqDate,slcIdx=slcIdx)
                 else:
                 
 
-                    zas = stations[i].addStack(stack, ovsFactor=1, 
+                    zas = stations[i].addStack(stack, ovsFactor=ovsFactor, 
                                              posFlag=posFlag, plotFlag=plotFlag,
                                              outDir=outDir,SLC=SLC,acqDate=acqDate,slcIdx=slcIdx)
 
@@ -148,7 +152,7 @@ def main(parms):
         stations[i].toJSON(outDir)
         stations[i].statsToJSON(outDir)
     print('Exporting Radar Coordinates to CSV...')
-    dorisUtils.RCexport(stations,stacks,outDir+os.sep+'RadarCoordinates'+os.sep)
+    dorisUtils.RCexport(stations,stacks,outDir+os.sep+'RadarCoordinates'+os.sep,plotFlag,fullStack)
 
     
     if len(stations) > 2 and plotFlag > 0:

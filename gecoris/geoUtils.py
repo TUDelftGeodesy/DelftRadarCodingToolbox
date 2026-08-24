@@ -7,7 +7,7 @@ Module containing geodetic utility functions
 Copyright (C) 2021 by R.Czikhardt
 
 Email: czikhardt.richard@gmail.com
-Last edit: 1.7.2021
+Last edit: 14.4.2024
 
 This file is part of GECORIS - Geodetic Corner Reflector (In)SAR Toolbox.
 
@@ -25,7 +25,7 @@ This file is part of GECORIS - Geodetic Corner Reflector (In)SAR Toolbox.
     along with GECORIS. If not, see <https://www.gnu.org/licenses/>.
     
     CHANGE LOG
-    - 30/6/2023: orbitFit and OrbitVal modified to adapt the input to a np.array Nx4 (N number of timesamples)
+    - 14/4/2024: orbitFit and OrbitVal modified to adapt the input to a np.array Nx4 (N number of timesamples), velocity and acceleration retrieved by derivative
 """
 
 import numpy as np
@@ -342,15 +342,7 @@ def orbitFit(orbit, verbose = 0, plotFlag = 0, der = True):
     y = orbit[:,2]
     z = orbit[:,3]
     
-    # parse masterorb: 
-    # t = np.array([orb.time_mjd for orb in orbit])
-    # x = np.array([orb.x_pos for orb in orbit])
-    # y = np.array([orb.y_pos for orb in orbit])
-    # z = np.array([orb.z_pos for orb in orbit])
-    
-    # x_vel = np.array([orb.x_vel for orb in orbit])
-    # y_vel = np.array([orb.y_vel for orb in orbit])
-    # z_vel = np.array([orb.z_vel for orb in orbit])
+
     
     #t = np.mod(t,1)*24*3600 # convert t to [seconds] of day
     
@@ -362,10 +354,9 @@ def orbitFit(orbit, verbose = 0, plotFlag = 0, der = True):
     cZ = np.polynomial.chebyshev.chebfit(px,z,7)
     
     if der:
-        cVX = np.polynomial.chebyshev.chebder(cX) #np.polynomial.chebyshev.chebfit(px,x_vel,7) # velocity
-        cVY = np.polynomial.chebyshev.chebder(cY) #np.polynomial.chebyshev.chebfit(px,y_vel,7)
-        cVZ = np.polynomial.chebyshev.chebder(cZ) #np.polynomial.chebyshev.chebfit(px,z_vel,7)
-        # print('DER: on') # DEBUG
+        cVX = np.polynomial.chebyshev.chebder(cX) # velocity
+        cVY = np.polynomial.chebyshev.chebder(cY)
+        cVZ = np.polynomial.chebyshev.chebder(cZ)
     else:
         x_vel = orbit[:,4]
         y_vel = orbit[:,5]

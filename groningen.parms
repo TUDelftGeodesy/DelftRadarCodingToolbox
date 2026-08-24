@@ -1,10 +1,10 @@
 {
 "project" : 'groningen_IGRS',
-"aoiDir" : '/project/caroline/Share/stacks/nl_groningen_s1_dsc_t037/',
-"targetDB" : '/project/caroline/Share/users/caroline-pbazzocchi/CarolineRadarCodingToolbox/Database/Database_DesignatedTargets_TUDelft_v20240320.xlsx',
-"outDir" : '/home/caroline-pbazzocchi/algorithm/RC_groningen/',
-"convFlag" : 1,                 # 0 = do not ... / 1 = save transformed coordinates in the target CRS in a csv file
-"mapFlag" : 1,                  # 0 = do not ... / 1 = save geojson file in outDIr, copypaste to https://geojson.io to display it
+"aoiDir" : '/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/example/aoi_groningen/nl_groningen_s1_dsc_t037_short/cropped_stack/',
+"targetDB" : '/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/Database/Database_DesignatedTargets_TUDelft_v20240320.xlsx',
+"outDir" : '/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/results/nl_groningen_s1_dsc_t037_short_ovs16/',
+"convFlag" : 1,                 # 0 = do not ... / 1 = save transformed coordinates in a csv file
+"mapFlag" : 1,                  # 0 = do not ... / 1 = save geojson file in outDir
 "exclTarget" : []
                # row indexes of the target to exclude (1 = first target in the Database)
 }

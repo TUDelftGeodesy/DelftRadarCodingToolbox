@@ -2,20 +2,10 @@
 "stacks": [
 {
     "id":"s1_dsc037",
-    "dataPath":"/project/caroline/Share/stacks/nl_groningen_s1_dsc_t037/stack/",
+    "dataPath":"/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/example/aoi_groningen/nl_groningen_s1_dsc_t037_short/cropped_stack",
     "productPath":"/project/caroline/Data/radar_data/sentinel1/s1_dsc_t037/IW_SLC__1SDV_VVVH",
-    "firstDate":"20180219",
-    "exclDates":["20230518"],
-    "sensor":"Sentinel-1",
-    "subswath":null,
-    "type":"coreg"
-},
-{
-    "id":"s1_asc088",
-    "dataPath":"/project/caroline/Share/stacks/nl_groningen_s1_asc_t088/stack/",
-    "productPath":"/project/caroline/Data/radar_data/sentinel1/s1_asc_t088/IW_SLC__1SDV_VVVH",
-    "firstDate":"20180222",
-    "exclDates":["20230518","20230602","20230521"],
+    "firstDate":"20180101",
+    "exclDates":[],
     "sensor":"Sentinel-1",
     "subswath":null,
     "type":"coreg"
