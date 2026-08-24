@@ -69,24 +69,34 @@ With reference to the diagram of the CRCT, the Radar Coordinates corresponds to 
 
 ## Installation
 
-We recommend to create a virtual environment and install the required packages in it. To manage the virtual environment, we recommend to use [`uv`](https://docs.astral.sh/uv/)
+We recommend using [pixi](https://pixi.sh/latest/) to install and run the toolbox.
 
-For now you can only install Caorline RadarCodingToolbox from source.
+Why pixi: the Python GDAL package requires native GDAL C libraries, and pixi installs both the Python environment and the matching system libraries from conda-forge.
 
-First, clone the repository:
+Install from source:
+
+1. Clone the repository:
 ```
 git clone git@github.com:TUDelftGeodesy/DelftRadarCodingToolbox.git
-```
-
-Then, go to the clone directory and install the package:
-```
 cd DelftRadarCodingToolbox
-uv pip install .
 ```
 
-This will install the package and all its dependencies in the virtual environment `.venv` in `DelftRadarCodingToolbox`. You can activate the virtual environment with:
+2. Create the pixi environment (this resolves GDAL and Python dependencies):
 ```
-source .venv/bin/activate
+pixi install
+```
+
+This installs all dependencies in `.pixi` directory.
+
+3. Activate the pixi environment:
+```
+pixi shell
+```
+
+3. Run the toolbox inside the pixi environment:
+```
+python selection.py selection.parms
+python mainRC.py RC.parms
 ```
 
 
