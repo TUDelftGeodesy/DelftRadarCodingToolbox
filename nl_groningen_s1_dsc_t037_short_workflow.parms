@@ -1,0 +1,109 @@
+{
+# Project name used by selection, RC, ALE, output metadata, and plot titles.
+"project": "groningen_IGRS",
+
+# Workflow steps to run, in order.
+# "selection" = run selection.py and create reflectors.json / reflectors.csv
+# "rc"        = run mainRC.py using the selected reflectors
+# "ale"       = run mainALE.py using the selected reflectors
+#
+# Use ["selection", "rc"] for only the first two steps.
+# Use ["selection", "rc", "ale"] for the full workflow.
+"steps": ["selection", "rc", "ale"],
+
+"paths": {
+    # Directory containing the AOI shapefile.
+    # For the cropped-stack workflow this should be the cropped_stack directory.
+    # selection.py looks here for an AOI shapefile, currently *interest.shp or *shape.shp.
+    "aoiDir": "/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/example/aoi_groningen/nl_groningen_s1_dsc_t037_short/cropped_stack/",
+
+    # Excel database containing the designated target records read by selection.py.
+    "targetDB": "/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/Database/Database_DesignatedTargets_TUDelft_v20240320.xlsx",
+
+    # JSON file describing the SAR stack(s), read by mainRC.py and mainALE.py.
+    "stackLog": "/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/stacks_RC.json",
+
+    # Main output directory for selection.py and mainRC.py.
+    # selection.py writes reflectors.json, reflectors.csv, coordinate CSV,
+    # and selected-target map outputs here.
+    # mainRC.py writes RadarCoordinates, RCS outputs, and network plots here.
+    "outDir": "/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/results/nl_groningen_s1_dsc_t037_short_workflow_ovs16/",
+
+    # Output directory for mainALE.py.
+    # mainALE.py writes ALE station JSON files, ALE plots, RCS time-series plots,
+    # station statistics, stack JSON, and network plots here.
+    "aleOutDir": "/home/parallels/CarolineRadarCodingToolbox1/Caroline-Radar-Coding-Toolbox_copy/results/nl_groningen_s1_dsc_t037_short_workflow_ALE_ovs16/"
+},
+
+"selection": {
+    # Save transformed target coordinates to EPSG_4258_coordinates.csv.
+    # 0 = do not write transformed-coordinate CSV
+    # 1 = write transformed-coordinate CSV
+    "convFlag": 1,
+
+    # Save selected targets and AOI to map outputs.
+    # 0 = do not write map output
+    # 1 = write GeoJSON map output
+    "mapFlag": 1,
+
+    # User-facing target exclusion list.
+    # The cascade runner accepts station IDs here and translates them to the
+    # row-index based exclTarget list currently expected by selection.py.
+    #
+    # Example:
+    # "excludeTargetIds": ["POST", "BARN"]
+    "excludeTargetIds": []
+},
+
+"processing": {
+    # Controls the size of the SLC crop around the radar-coded reflector position.
+    # 0 = approximate mode: larger crop window
+    # 1 = precise mode: smaller crop window, assuming the predicted position is accurate
+    #
+    # This does not enable subpixel positioning by itself.
+    # Subpixel positioning is controlled by ovsFactor.
+    "precisePosFlag": 1,
+
+    # Controls optional summary/diagnostic plotting in mainRC.py and mainALE.py.
+    # 0 = skip optional summary plots
+    # 1 = write standard RCS time-series plots and network plots
+    # 2 = additionally write ALE plots from mainRC.py when precisePosFlag is enabled
+    #
+    # Note: in the current cropped-coreg branch, per-acquisition RCS crop PNGs
+    # are produced for active reflectors independent of plotFlag.
+    "plotFlag": 1,
+
+    # Select how many SLC dates are read from the stack.
+    # 1 = process all available dates
+    # 0 = process a reduced, evenly sampled subset
+    #
+    # For the current cropped-stack code, fullStack = 0 keeps 4 epochs.
+    # They are selected with np.linspace from the full date list, so the subset
+    # is approximately evenly spaced from the first available date to the last.
+    #
+    # This number is currently hardcoded in:
+    #   gecoris/classes.py
+    # inside Stack.readData(), where dateList is reduced when fullStack == 0.
+    "fullStack": 1,
+
+    # Select DORIS stack layout.
+    # 1 = cropped_stack layout; this is the currently tested workflow
+    # 0 = full/raw stack layout; legacy mode, not currently validated for this cascade
+    "cropFlag": 1,
+
+    # FFT oversampling factor for peak estimation.
+    # 1  = no oversampling; peak is selected at integer-pixel precision
+    # >1 = oversample the SLC crop and fit a subpixel peak
+    #
+    # Example: 16 gives approximately 1/16-pixel sampling before fitting.
+    "ovsFactor": 16
+},
+
+"ale": {
+    # Atmospheric correction flag used by mainALE.py.
+    # 0 = do not use atmospheric correction
+    # 1 = prepare/use atmospheric correction files under the ALE output directory,
+    #     specifically <aleOutDir>/atmo/
+    "atmoFlag": 0
+}
+}

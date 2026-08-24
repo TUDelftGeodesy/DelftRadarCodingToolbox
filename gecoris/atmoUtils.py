@@ -32,7 +32,7 @@ import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d, interpn, RegularGridInterpolator
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from gecoris import geoUtils, radarUtils
 
 
@@ -273,10 +273,10 @@ def getTropoDelay(xyz_P,xyz_S,date,atmoDir,method='Jolviet'):
     # integrate along LOS direction
     if method == 'default':
         tmp = k1*(P_P-e_P)/T_P + k2*e_P/T_P + k3*e_P/(T_P**2)
-        LOS = np.flipud(cumtrapz(np.flipud(tmp),np.flipud(slantDist)))[0]*1e-6
+        LOS = np.flipud(cumulative_trapezoid(np.flipud(tmp),np.flipud(slantDist)))[0]*1e-6
     elif method == 'Jolviet':
         tmp = ((k2-(Rd*k1/Rv))*e_P/T_P + k3*e_P/(T_P**2))
-        LOSw = np.flipud(cumtrapz(np.flipud(tmp),np.flipud(slantDist)))[0]*1e-6
+        LOSw = np.flipud(cumulative_trapezoid(np.flipud(tmp),np.flipud(slantDist)))[0]*1e-6
         # g between h_P and h_max (using normal gradient):
         g_m = np.mean(g.flatten()) - 0.3086e-5*hMax/2
         # dry delay (using cosine projection...)
