@@ -1104,7 +1104,9 @@ def readSLC(file,metadata,boundingBox,method = 'raw'):
 
         data = slc.data
         if hasattr(data, 'compute'):
-            return np.asarray(data.compute(scheduler='single-threaded'))
+            import dask
+            with dask.config.set(scheduler='synchronous'):
+                return np.asarray(data.compute())
 
         if hasattr(slc, 'to_numpy'):
             return slc.to_numpy()
