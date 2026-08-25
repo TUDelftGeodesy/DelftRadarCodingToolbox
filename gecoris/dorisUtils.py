@@ -1101,9 +1101,15 @@ def readSLC(file,metadata,boundingBox,method = 'raw'):
         # AML
         if hasattr(slc, 'values'):
             return slc.values
+
+        data = slc.data
+        if hasattr(data, 'compute'):
+            return np.asarray(data.compute(scheduler='single-threaded'))
+
         if hasattr(slc, 'to_numpy'):
             return slc.to_numpy()
-        return np.asarray(slc.data)
+
+        return np.asarray(data)
         # AML END
 
     elif method=='coregSingle':
