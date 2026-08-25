@@ -67,27 +67,35 @@ With reference to the diagram of the CRCT, the Radar Coordinates corresponds to 
 
 ## Installation
 
-From the terminal:
+We recommend using [pixi](https://pixi.sh/latest/) to install and run the toolbox.
 
+Why pixi: the Python GDAL package requires native GDAL C libraries, and pixi installs both the Python environment and the matching system libraries from conda-forge.
 
-1. Make sure to have the required libraries installed python environent by running the following line in the environment you'd like to use:
+Install from source:
+
+1. Clone the repository:
 ```
-pip install openpyxl matplotlib geopandas shapely
-
-```
-
-2. Download  `main.py` and `.parms` file from: https://github.com/Pbaz98/radarcoding-tool.git to the destination directory:
-
-```
-git clone https://github.com/Pbaz98/radarcoding-tool.git destination-directory-name
+git clone git@github.com:TUDelftGeodesy/DelftRadarCodingToolbox.git
+cd DelftRadarCodingToolbox
 ```
 
+2. Create the pixi environment (this resolves GDAL and Python dependencies):
+```
+pixi install
+```
 
+This installs all dependencies in `.pixi` directory.
 
+3. Activate the pixi environment:
+```
+pixi shell
+```
 
-
-
-
+3. Run the toolbox inside the pixi environment:
+```
+python selection.py selection.parms
+python mainRC.py RC.parms
+```
 
 
 **Setting parameters**

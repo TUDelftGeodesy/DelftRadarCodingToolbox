@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "delftradarcodingtoolbox"
+version = "0.1.0"
+description = "Caroline Radar-Coding Toolbox"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+	"geopandas",
+	"matplotlib",
+	"numpy",
+	"openpyxl",
+	"requests",
+	"scipy",
+	"shapely",
+	"tqdm",
+	"snappy",
+	"sarxarray"
+]
+
+[project.optional-dependencies]
+# Optional fallback for non-pixi users. Pixi users should rely on conda-forge GDAL.
+pip-gdal = ["gdal"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+
+[tool.pixi.dependencies]
+python = ">=3.10,<3.13"
+gdal = "*"
+pip = "*"
+
+[tool.pixi.pypi-dependencies]
+delftradarcodingtoolbox = { path = ".", editable = true }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gecoris*", "functions*"]
+namespaces = true
