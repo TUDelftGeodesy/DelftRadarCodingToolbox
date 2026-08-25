@@ -1098,7 +1098,13 @@ def readSLC(file,metadata,boundingBox,method = 'raw'):
         maxR = int(boundingBox[1][1]) 
         slc = file.isel(azimuth=range(minAz,maxAz),range=range(minR,maxR))
 
-        return slc.values
+        # AML
+        if hasattr(slc, 'values'):
+            return slc.values
+        if hasattr(slc, 'to_numpy'):
+            return slc.to_numpy()
+        return np.asarray(slc.data)
+        # AML END
 
     elif method=='coregSingle':
         shape=(metadata["nLines"], metadata["nPixels"])    
