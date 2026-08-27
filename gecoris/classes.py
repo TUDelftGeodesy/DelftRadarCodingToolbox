@@ -1613,6 +1613,12 @@ class Stack:
                 
                 if 'crop' in kwargs:
                     cropFlag = kwargs['crop']
+                else:
+                    cropFlag = 0
+
+                # AML
+                self.cropFlag = cropFlag
+                # AML END
                 
                 # find all the directories named as a date
                 dateList = sorted([str(p).split('/')[-1] 

@@ -171,6 +171,14 @@ def RCexport(stations,stacks,outDir,plotFlag=1,fullStack=0):
             pCount = Counter(pairs)
             mode = pCount.most_common()
             modeRC = mode[0][0]
+
+            # AML
+            rangeExport = modeRC[0]
+            azimuthExport = modeRC[1]
+            if getattr(stack, 'cropFlag', 0):
+                rangeExport = rangeExport + stack.masterMetadata["1stRange"] - 1
+                azimuthExport = azimuthExport + stack.masterMetadata["1stAzimuth"] - 1
+            # AML END
                               
             
             
@@ -199,7 +207,7 @@ def RCexport(stations,stacks,outDir,plotFlag=1,fullStack=0):
 
 
             # write the row for the csv file: ID, RCS check, coordinates, space-time matrix
-            stRow = [station.id,rFlag,modeRC[0],modeRC[1],station.ascending.latitude*(180/np.pi),station.ascending.longitude*(180/np.pi),station.ascending.elevation]+timeRow
+            stRow = [station.id,rFlag,rangeExport,azimuthExport,station.ascending.latitude*(180/np.pi),station.ascending.longitude*(180/np.pi),station.ascending.elevation]+timeRow
             #[station.id,rFlag,modeRC[0],modeRC[1]]+timeRow ##AML original 20240610
             
             # fill matrix
